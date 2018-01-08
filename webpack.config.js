@@ -7,6 +7,10 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WriteFilePlugin = require("write-file-webpack-plugin");
 
+console.log(env);
+Object.entries(env).forEach(([key, value]) => {
+    process.env[key] = value;
+});
 
 /*******************************************************************************
  * Paths
@@ -114,4 +118,5 @@ if (env.NODE_ENV === "development")
     };
 }
 
+console.log(process.env);
 module.exports = options;
