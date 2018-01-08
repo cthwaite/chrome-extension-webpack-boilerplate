@@ -7,6 +7,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WriteFilePlugin = require("write-file-webpack-plugin");
 
+/** Populate process.env from ./.env.js */
 Object.entries(env).forEach(([key, value]) => {
     process.env[key] = value;
 });
@@ -14,9 +15,10 @@ Object.entries(env).forEach(([key, value]) => {
 /*******************************************************************************
  * Paths
  */
-const secretsPath = path.join(__dirname, ("secrets." + env.NODE_ENV + ".js"));
+const secretsPath = path.join(__dirname, ("secrets." + process.env.NODE_ENV + ".js"));
 const SOURCE_DIR = 'src';
 const OUTPUT_DIR = 'build';
+const OUTPUT_PATH = path.join(__dirname, OUTPUT_DIR);
 
 
 /*******************************************************************************
@@ -53,18 +55,34 @@ const htmlRule = {
     exclude: /node_modules/
 };
 
+/**
+ * HTML output via HtmlWebpackPlugin.
+ * @param {String} filename - Filename of .html file in the 'src' folder.
+ * @param {Array} chunks - Chunks to add.
+ * @returns {HTMLWebpackPlugin}
+ */
+const genPackHTML = (filename, chunks) => {
+    return new HtmlWebpackPlugin({
+        template: path.join(__dirname, 'src', filename),
+        filename: filename,
+        chunks: chunks
+    });
+}
+
+const jsDir = filename => path.join(__dirname, SOURCE_DIR, 'js', filename)
+
 /*******************************************************************************
  * Options
  */
 const options = {
     entry: {
-        popup: path.join(__dirname, SOURCE_DIR, "js", "popup.js"),
-        options: path.join(__dirname, SOURCE_DIR, "js", "options.js"),
-        background: path.join(__dirname, SOURCE_DIR, "js", "background.js")
+        popup: jsDir('popup.js'),
+        options: jsDir('options.js'),
+        background: jsDir('background.js')
     },
     output: {
-        path: path.join(__dirname, OUTPUT_DIR),
-        filename: "[name].bundle.js"
+        path: OUTPUT_PATH,
+        filename: '[name].bundle.js'
     },
     module: { rules: [ cssRule, looseFilesRule, htmlRule ] },
     resolve: { alias: alias },
@@ -73,11 +91,11 @@ const options = {
         new CleanWebpackPlugin([OUTPUT_DIR]),
         // expose and write the allowed env vars on the compiled bundle
         new webpack.DefinePlugin({
-            "process.env.NODE_ENV": JSON.stringify(env.NODE_ENV)
+            'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
         }),
         new CopyWebpackPlugin([{
-            from: "src/manifest.json",
-            transform: function (content, path) {
+            from: 'src/manifest.json',
+            transform: (content, path) => {
                 // generates the manifest file using the package.json informations
                 return Buffer.from(JSON.stringify({
                     description: process.env.npm_package_description,
@@ -86,31 +104,19 @@ const options = {
                 }))
             }
         }]),
-        new HtmlWebpackPlugin({
-            template: path.join(__dirname, "src", "popup.html"),
-            filename: "popup.html",
-            chunks: ["popup"]
-        }),
-        new HtmlWebpackPlugin({
-            template: path.join(__dirname, "src", "options.html"),
-            filename: "options.html",
-            chunks: ["options"]
-        }),
-        new HtmlWebpackPlugin({
-            template: path.join(__dirname, "src", "background.html"),
-            filename: "background.html",
-            chunks: ["background"]
-        }),
+        genPackHTML('popup.html', ['popup']),
+        genPackHTML('options.html', ['options']),
+        genPackHTML('background.html', ['background']),
         new WriteFilePlugin()
     ]
 };
 
 /** If dev environment, create source maps and use dev server. */
-if (env.NODE_ENV === "development")
+if (process.env.NODE_ENV === "development")
 {
     options.devtool = "cheap-module-eval-source-map";
     options.devServer = {
-        contentBase: path.join(__dirname, OUTPUT_DIR),
+        contentBase: OUTPUT_PATH,
         port: 9000,
         debug: true,
         compress: true
