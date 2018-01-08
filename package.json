@@ -1,10 +1,11 @@
 {
     "name": "chrome-extension-webpack",
-    "version": "0.0.1",
-    "description": "A boilerplate to chrome extension with webpack",
+    "version": "0.0.0",
+    "description": "A boilerplate for building chrome extensions with webpack",
     "scripts": {
-        "build": "node utils/build.js",
-        "start": "node utils/webserver.js"
+        "build": "webpack --progress",
+        "watch": "webpack --watch --progress",
+        "serve": "webpack-dev-server --debug"
     },
     "devDependencies": {
         "babel-cli": "^6.26.0",
