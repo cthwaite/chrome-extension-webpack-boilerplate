@@ -1,7 +1,7 @@
 const webpack = require("webpack");
 const path = require('path');
 const fileSystem = require("fs");
-const env = require("./utils/env");
+const env = require("./.env");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -109,6 +109,7 @@ if (env.NODE_ENV === "development")
     options.devServer = {
         contentBase: path.join(__dirname, OUTPUT_DIR),
         port: 9000,
+        debug: true,
         compress: true
     };
 }
