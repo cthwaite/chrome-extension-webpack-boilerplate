@@ -4,8 +4,8 @@
     "description": "A boilerplate for building chrome extensions with webpack",
     "scripts": {
         "build": "webpack --progress",
-        "watch": "webpack --watch --progress",
-        "serve": "webpack-dev-server --debug"
+        "watch": "NODE_ENV=development webpack --watch --progress",
+        "serve": "NODE_ENV=development webpack-dev-server --debug"
     },
     "devDependencies": {
         "babel-cli": "^6.26.0",
