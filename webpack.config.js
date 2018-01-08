@@ -1,21 +1,22 @@
-const webpack = require("webpack");
+const webpack = require('webpack');
 const path = require('path');
-const fileSystem = require("fs");
-const env = require("./.env");
-const CleanWebpackPlugin = require("clean-webpack-plugin");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const WriteFilePlugin = require("write-file-webpack-plugin");
+const fileSystem = require('fs');
+const env = require('./.env');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const WriteFilePlugin = require('write-file-webpack-plugin');
 
 /** Populate process.env from ./.env.js */
 Object.entries(env).forEach(([key, value]) => {
     process.env[key] = value;
 });
 
+
 /*******************************************************************************
  * Paths
  */
-const secretsPath = path.join(__dirname, ("secrets." + process.env.NODE_ENV + ".js"));
+const secretsPath = path.join(__dirname, `secrets.${process.env.NODE_ENV}.js`);
 const SOURCE_DIR = 'src';
 const OUTPUT_DIR = 'build';
 const OUTPUT_PATH = path.join(__dirname, OUTPUT_DIR);
@@ -28,35 +29,37 @@ const OUTPUT_PATH = path.join(__dirname, OUTPUT_DIR);
 const alias = {};
 if (fileSystem.existsSync(secretsPath))
 {
-    alias["secrets"] = secretsPath;
+    alias['secrets'] = secretsPath;
 }
+
 
 /*******************************************************************************
  * Rules
  */
 const cssRule = {
     test: /\.css$/,
-    loader: "style-loader!css-loader",
+    loader: 'style-loader!css-loader',
     exclude: /node_modules/
 };
 
 const looseFileExtensions = [
-    "jpg", "jpeg", "png", "gif", "eot", "otf", "svg", "ttf", "woff", "woff2"
+    'jpg', 'jpeg', 'png', 'gif', 'eot', 'otf', 'svg', 'ttf', 'woff', 'woff2'
 ];
 const looseFilesRule = {
-    test: new RegExp('\.(' + looseFileExtensions.join('|') + ')$'),
-    loader: "file-loader?name=[name].[ext]",
+    test: new RegExp(`\.(${looseFileExtensions.join('|')})$`),
+    loader: 'file-loader?name=[name].[ext]',
     exclude: /node_modules/
 };
 
 const htmlRule = {
     test: /\.html$/,
-    loader: "html-loader",
+    loader: 'html-loader',
     exclude: /node_modules/
 };
 
+
 /**
- * HTML output via HtmlWebpackPlugin.
+ * Pack chrome extension HTML files via HtmlWebpackPlugin.
  * @param {String} filename - Filename of .html file in the 'src' folder.
  * @param {Array} chunks - Chunks to add.
  * @returns {HTMLWebpackPlugin}
@@ -112,9 +115,9 @@ const options = {
 };
 
 /** If dev environment, create source maps and use dev server. */
-if (process.env.NODE_ENV === "development")
+if (process.env.NODE_ENV === 'development')
 {
-    options.devtool = "cheap-module-eval-source-map";
+    options.devtool = 'cheap-module-eval-source-map';
     options.devServer = {
         contentBase: OUTPUT_PATH,
         port: 9000,
